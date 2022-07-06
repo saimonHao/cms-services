@@ -17,6 +17,7 @@
     "bodybuilder": "^2.2.25",
     "cors": "^2.8.5",
     "cron-job-manager": "^2.3.0",
+    "crypto": "^1.0.1",
     "dotenv": "^16.0.1",
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",

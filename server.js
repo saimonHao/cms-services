@@ -38,19 +38,19 @@ app.use(function (req, res, next) {
 });
 let router = express.Router();
 router.get("/", (req, res) => {
-    res.status(200).send("Hello social media service service!");
+    res.status(200).send("Hello cms service!");
 });
 
+
+
 const { LoginRouter } = require('./controllers/login-controller');
+const { AuthRouter } = require('./controllers/auth-controller');
 const { UserRouter } = require('./controllers/user-controller');
+router.use(LoginRouter)
+router.use(AuthRouter);
+router.use(UserRouter);
 
-app.use('/cms/api/v1.0', LoginRouter);
-app.use('/cms/api/v1.0/*', verifyToken);
-app.use('/cms/api/v1.0', UserRouter);
-// router.use(LoginRouter)
-// router.use(UserRouter);
-
-// app.use('/cms/api/v1.0', router);
+app.use('/cms/api/v1.0', router);
 // Listen to the App Engine-specified port, or 8080 otherwise
 const PORT = process.env.PORT || 8088;
 app.listen(PORT, () => {
