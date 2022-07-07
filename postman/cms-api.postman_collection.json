@@ -8,7 +8,7 @@
 		{
 			"name": "192.168.11.236:8080/cms/api/v1.0/user/list",
 			"request": {
-				"method": "GET",
+				"method": "POST",
 				"header": [
 					{
 						"key": "Authorization",
@@ -16,25 +16,16 @@
 						"type": "text"
 					}
 				],
-				"url": "192.168.11.236:8080/cms/api/v1.0/user/list"
-			},
-			"response": []
-		},
-		{
-			"name": "192.168.11.236:8080/cms/api/v1.0/sessions",
-			"request": {
-				"auth": {
-					"type": "noauth"
-				},
-				"method": "GET",
-				"header": [
-					{
-						"key": "Authorization",
-						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6InVzZXJfMSIsImVtYWlsIjoidXNlckBlbWFpbC5jb20iLCJpYXQiOjE2NTcwOTkyMzUsImV4cCI6MTY1NzQ0NDgzNX0.8sA8pjhkXHpnDY5oBa4IyFrMc2wAoXpPi4EE7p7gsSg",
-						"type": "text"
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\":\"user@email.com\",\n    \"password\":\"123456\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
 					}
-				],
-				"url": "192.168.11.236:8080/cms/api/v1.0/sessions"
+				},
+				"url": "192.168.11.236:8080/login"
 			},
 			"response": []
 		},
@@ -45,11 +36,11 @@
 				"header": [
 					{
 						"key": "Authorization",
-						"value": "",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwibmFtZSI6InVzZXJfMSIsImVtYWlsIjoidXNlckBlbWFpbC5jb20iLCJpYXQiOjE2NTcxNTcwNDMsImV4cCI6MTY1NzUwMjY0M30.HK9LvmRpIvodlORMwr1kaVTuS-DLE-P5cWrIu1SKQ50",
 						"type": "text"
 					}
 				],
-				"url": "192.168.11.236:8080/cms/api/v1.0/user/list"
+				"url": "192.168.11.236:8080/user/list"
 			},
 			"response": []
 		}

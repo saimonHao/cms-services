@@ -4,6 +4,7 @@ const app = express();
 const cors = require('cors');
 const body_parser = require('body-parser');
 const { Model, knexSnakeCaseMappers } = require('objection');
+const config = require('./config');
 const Knex = require('knex')({
     client: 'mysql',
     connection: {

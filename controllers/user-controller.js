@@ -29,7 +29,7 @@ UserRouter.get("/user/list", async (req, res) => {
         })
     }
 });
-const authenticate = async (req, res, next) => {
+const authenticate = async (req, res) => {
     try {
         if (req.headers.authorization) {
             const token = req.headers.authorization.split(" ")[1];
@@ -48,7 +48,6 @@ const authenticate = async (req, res, next) => {
                         ...result
                     }
                 })
-                next();
             } else {
                 return res.status(400).send({
                     data: {
