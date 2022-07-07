@@ -4,8 +4,6 @@ const app = express();
 const cors = require('cors');
 const body_parser = require('body-parser');
 const { Model, knexSnakeCaseMappers } = require('objection');
-const config = require("./config")
-const { verifyToken } = require('./utils/jwtUtils');
 const Knex = require('knex')({
     client: 'mysql',
     connection: {
@@ -44,13 +42,15 @@ router.get("/", (req, res) => {
 
 
 const { LoginRouter } = require('./controllers/login-controller');
-const { AuthRouter } = require('./controllers/auth-controller');
-const { UserRouter } = require('./controllers/user-controller');
-router.use(LoginRouter)
-router.use(AuthRouter);
-router.use(UserRouter);
+const { UserRouter,authenticate } = require('./controllers/user-controller');
+//不需要验证权限
+app.use(LoginRouter)
 
-app.use('/cms/api/v1.0', router);
+app.use(authenticate);
+
+//需要验证权限
+app.use(UserRouter);
+
 // Listen to the App Engine-specified port, or 8080 otherwise
 const PORT = process.env.PORT || 8088;
 app.listen(PORT, () => {

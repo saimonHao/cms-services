@@ -1,7 +1,8 @@
 const express = require('express');
 const UserRouter = express.Router();
 const UserModel = require('../models/User');
-
+const { verifyToken } = require('../utils/jwtUtils');
+const config = require('../config');
 UserRouter.get("/user/list", async (req, res) => {
     let { page, size, username, create_date } = req.query;
     if (!page) page = 1;
@@ -28,4 +29,44 @@ UserRouter.get("/user/list", async (req, res) => {
         })
     }
 });
-module.exports = { UserRouter }
+const authenticate = async (req, res, next) => {
+    try {
+        if (req.headers.authorization) {
+            const token = req.headers.authorization.split(" ")[1];
+            const result = await verifyToken(token, config.jwtSecret).catch(err => {
+                return res.status(500).send({
+                    data: {
+                        code: 500,
+                        message: 'Invalid Token.'
+                    }
+                })
+            });
+            if (result) {
+                res.status(200).send({
+                    data: {
+                        code: 200,
+                        ...result
+                    }
+                })
+                next();
+            } else {
+                return res.status(400).send({
+                    data: {
+                        code: 400,
+                        message: 'Invalid Token.'
+                    }
+                });
+            }
+        } else {
+            return res.status(400).send({
+                data: {
+                    code: 400,
+                    message: 'No token provided.'
+                }
+            });
+        }
+    } catch (error) {
+        console.log("verify token error ", error.message);
+    }
+}
+module.exports = { UserRouter, authenticate }
