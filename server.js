@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const app = express();
+const router = express.Router();
 const cors = require('cors');
 const body_parser = require('body-parser');
 const { Model, knexSnakeCaseMappers } = require('objection');
@@ -35,23 +36,22 @@ app.use(function (req, res, next) {
     res.setTimeout(40 * 60 * 1000);
     next();
 });
-let router = express.Router();
-router.get("/", (req, res) => {
+app.get("/", (req, res) => {
     res.status(200).send("Hello cms service!");
 });
 
 
 
 const { LoginRouter } = require('./controllers/login-controller');
-const { UserRouter,authenticate } = require('./controllers/user-controller');
+const { UserRouter, authenticate } = require('./controllers/user-controller');
 //不需要验证权限
-app.use(LoginRouter)
+router.use(LoginRouter)
 
-app.use(authenticate);
+// router.use(authenticate);
 
 //需要验证权限
-app.use(UserRouter);
-
+router.use(UserRouter);
+app.use("/cms/api/v1.0", router)
 // Listen to the App Engine-specified port, or 8080 otherwise
 const PORT = process.env.PORT || 8088;
 app.listen(PORT, () => {

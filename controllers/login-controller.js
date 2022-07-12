@@ -25,7 +25,7 @@ LoginRouter.post('/login', async (req, res) => {
                     data: {
                         code: 200,
                         token,
-                        // ...payload
+                        ...payload
                     }
                 })
             } else {
