@@ -37,6 +37,9 @@ app.use(function (req, res, next) {
     next();
 });
 app.get("/", (req, res) => {
+    const items = new Set([1, 2, 2, 3, 4, 5])
+    const array = Array.from(items);
+    console.log(array);
     res.status(200).send("Hello cms service!");
 });
 
@@ -44,8 +47,10 @@ app.get("/", (req, res) => {
 
 const { LoginRouter } = require('./controllers/login-controller');
 const { UserRouter, authenticate } = require('./controllers/user-controller');
+const { RoleRouter } = require('./controllers/role-controller');
 //不需要验证权限
 router.use(LoginRouter)
+router.use(RoleRouter);
 
 // router.use(authenticate);
 

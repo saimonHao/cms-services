@@ -85,8 +85,9 @@ UserRouter.delete('/user/:id', async (req, res) => {
 /**
  * update user
  */
-UserRouter.post('/user/update', async (req, res) => {
+UserRouter.put('/user/update', async (req, res) => {
     const { name, upId } = req.body;
+    console.log(name,upId);
     try {
         const dbUser = await UserModel.query().findById(upId);
         if (!dbUser) {
@@ -122,22 +123,24 @@ UserRouter.post('/user/update', async (req, res) => {
  * get user list 
  */
 UserRouter.get("/user/list", async (req, res) => {
-    let { page, size, username } = req.query;
+    let { page, sizePerPage, searchKey } = req.query;
     if (!page) page = 1;
-    if (!size) size = 10;
+    if (!sizePerPage) sizePerPage = 10;
     try {
-        const users = await UserModel.query().where(function () {
-            if (username) {
-                this.where('name', 'LIKE', `%${username}%`)
-            }
-        }).limit(size).offset(size * (page - 1));
-        const total = await UserModel.query()
-            .count({ count: '*' })
-            .where(function () {
-                if (username) {
-                    this.where('name', 'LIKE', `%${username}%`)
+        const [users, total] = await Promise.all([
+            UserModel.query().where(function () {
+                if (searchKey) {
+                    this.where('name', '=', `${searchKey}`)
                 }
-            }).first();
+            }).limit(sizePerPage).offset(sizePerPage * (page - 1)),
+            UserModel.query()
+                .count({ count: '*' })
+                .where(function () {
+                    if (searchKey) {
+                        this.where('name', '=', `${searchKey}`)
+                    }
+                }).first()
+        ])
         //转换sql语句  使用.toKnexQuery().toSQL()
         // console.log(UserModel.query().limit(size).offset(size * (page - 1)).toKnexQuery().toSQL());
         res.status(200).send({
