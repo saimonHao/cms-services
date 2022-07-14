@@ -7,4 +7,4 @@ class Role extends Model {
         return snakeCaseMappers();
     }
 }
-module.exports = { Role }
+module.exports = Role 
