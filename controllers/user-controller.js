@@ -87,7 +87,6 @@ UserRouter.delete('/user/:id', async (req, res) => {
  */
 UserRouter.put('/user/update', async (req, res) => {
     const { name, upId } = req.body;
-    console.log(name,upId);
     try {
         const dbUser = await UserModel.query().findById(upId);
         if (!dbUser) {

@@ -9,7 +9,7 @@ const moment = require('moment');
 RoleRouter.post('/role/create', async (req, res) => {
     const { roleName, permissions } = req.body;
     try {
-        const dbRole = await RoleModel.query().where('name', '=', roleName).first();
+        const dbRole = await RoleModel.query().where('role_name', '=', roleName).first();
         if (dbRole) {
             return res.status(400).send({
                 data: {
@@ -46,9 +46,9 @@ RoleRouter.post('/role/create', async (req, res) => {
  * delete role
  */
 RoleRouter.delete('/role/:id', async (req, res) => {
-    const { delId } = req.params;
+    const { id } = req.params;
     try {
-        const dbRole = await RoleModel.query().findById(delId);
+        const dbRole = await RoleModel.query().findById(id);
         if (!dbRole) {
             return res.status(400).send({
                 data: {
@@ -57,8 +57,7 @@ RoleRouter.delete('/role/:id', async (req, res) => {
                 }
             })
         }
-        const delRole = await RoleModel.query().deleteById(delId);
-        console.log("delRole ==== ", delRole);
+        const delRole = await RoleModel.query().deleteById(id);
         res.status(200).send({
             data: {
                 code: 200,
@@ -114,11 +113,31 @@ RoleRouter.put('/role/update', async (req, res) => {
 
 });
 /**
+ * update user_role
+ */
+RoleRouter.put('/role/:uid', async (req, res) => {
+    const { id, roleNames } = req.params;
+    try {
+        for (let i = 0; i < roleNames.length; i++) {
+            const dbRole = await RoleModel.query().where('role_name', '=', roleNames[i]);
+            if (dbRole !== undefined) {
+                const roleUsers = dbRole.users.split(",");
+                roleUsers.push(id);
+                roleUsers = roleUsers.join(",");
+                const upRole = await RoleModel.query().findById(dbRole.id).patch({
+                    users: roleUsers
+                })
+            }
+        }
+    } catch (error) {
+
+    }
+})
+/**
  * list & search user
  */
 RoleRouter.get('/role/list', async (req, res) => {
     const { page, sizePerPage, searchKey } = req.query;
-    console.log(page, sizePerPage);
     try {
         const [roles, counts] = await Promise.all([
             RoleModel.query().where(function () {
