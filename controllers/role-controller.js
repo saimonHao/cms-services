@@ -118,31 +118,31 @@ RoleRouter.put('/role/update', async (req, res) => {
  */
 RoleRouter.put('/role/updateUserRole', async (req, res) => {
     const { uid, roleNames } = req.body
-    // console.log(req);
     try {
-        //如果roleNames length > 0 forloop dbUsers 包含 则不处理 不包含追加
-        //如果roleNames length ==0 dbUsers包含的都要去除
         let roleUsers;
-        if (roleNames.length > 0) {
-            for (let roleName of roleNames) {
-                const dbRole = await RoleModel.query().where('role_name', '=', roleName).first();
-                roleUsers = dbRole.users === undefined || dbRole.users === "" ? [] : dbRole.users.split(",");
-                if (!roleUsers.includes(String(uid))) {
+        const dbRoles = await RoleModel.query();
+        for (let role of dbRoles) {
+            if (roleNames.length > 0) {
+                roleUsers = role.users === undefined || role.users === "" ? [] : role.users.split(",");
+                //移除关联的user
+                if (roleUsers.includes(String(uid)) && !roleNames.includes(role.roleName)) {
+                    roleUsers = roleUsers.filter(ru => ru !== String(uid));
+                }
+                //新增关联的user
+                if (!roleUsers.includes(String(uid)) && roleNames.includes(role.roleName)) {
                     roleUsers.push(String(uid));
                 }
-                const upRole = await RoleModel.query().findById(dbRole.id).patch({
+                await RoleModel.query().findById(role.id).patch({
                     users: roleUsers.join(",")
                 });
-            }
-        } else {
-            const dbRole = await RoleModel.query();
-            for (let role of dbRole) {
+            } else {
                 let roleUserArr = role.users.split(",");
                 const newRoleUserArr = roleUserArr.filter(ru => ru !== String(uid));
-                const upRole = await RoleModel.query().findById(role.id).patch({
+                await RoleModel.query().findById(role.id).patch({
                     users: newRoleUserArr.join(",")
                 });
             }
+
         }
         return res.status(200).send({
             data: {
