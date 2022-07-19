@@ -117,13 +117,13 @@ RoleRouter.put('/role/update', async (req, res) => {
  * update user_role
  */
 RoleRouter.put('/role/updateUserRole', async (req, res) => {
-    const { uid, roleNames } = req.body
+    const { uid, roleNames } = req.body;
     try {
         let roleUsers;
         const dbRoles = await RoleModel.query();
         for (let role of dbRoles) {
             if (roleNames.length > 0) {
-                roleUsers = role.users === undefined || role.users === "" ? [] : role.users.split(",");
+                roleUsers = role.users === undefined || role.users === null || role.users === "" ? [] : role.users.split(",");
                 //移除关联的user
                 if (roleUsers.includes(String(uid)) && !roleNames.includes(role.roleName)) {
                     roleUsers = roleUsers.filter(ru => ru !== String(uid));
@@ -132,6 +132,7 @@ RoleRouter.put('/role/updateUserRole', async (req, res) => {
                 if (!roleUsers.includes(String(uid)) && roleNames.includes(role.roleName)) {
                     roleUsers.push(String(uid));
                 }
+               
                 await RoleModel.query().findById(role.id).patch({
                     users: roleUsers.join(",")
                 });
