@@ -10,8 +10,8 @@ LoginRouter.post('/login', async (req, res) => {
     try {
         const hash = crypto.createHash('sha256');
         const hashedPassword = hash.update(password).digest('hex');
-        console.log('input password===', password);
-        console.log('hashed password===', hashedPassword);
+        // console.log('input password===', password);
+        // console.log('hashed password===', hashedPassword);
         const user = await UserModel.query().where('email', '=', formateEmail).first();
         if (user) {
             if (user.password === hashedPassword) {

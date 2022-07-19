@@ -1,6 +1,7 @@
 const express = require('express');
 const UserRouter = express.Router();
 const UserModel = require('../models/User');
+const RoleModel = require('../models/Role');
 const { verifyToken } = require('../utils/jwtUtils');
 const crypto = require('crypto');
 const config = require('../config');
@@ -9,8 +10,8 @@ const moment = require('moment');
  * insert new user
  */
 UserRouter.post('/user/create', async (req, res) => {
-    const { name, email, password } = req.body;
-    console.log(name, email, password);
+    const { name, email, roleNames,password } = req.body;
+    console.log(name, email,roleNames, password);
     try {
         const existUser = await UserModel.query().where('email', '=', email).andWhere('name', '=', name).first();
         if (existUser) {
@@ -23,10 +24,20 @@ UserRouter.post('/user/create', async (req, res) => {
         }
         const hash = crypto.createHash('sha256');
         const hashedPassword = hash.update(password).digest('hex');
+        //关联权限
+        let permissions='';
+        for (let roleName of roleNames) {
+            const dbRole = await RoleModel.query().where('role_name', '=', roleName).first();
+            if (dbRole !== undefined) {
+                permissions += dbRole.permissions;
+            }
+        }
         const user = await UserModel.query().insert({
             name,
             email,
             password: hashedPassword,
+            roles:roleNames.join(','),
+            permissions,
             create_time: moment().format('YYYY-MM-DD HH:mm:ss')
         });
         if (user) {
@@ -86,7 +97,8 @@ UserRouter.delete('/user/:id', async (req, res) => {
  * update user
  */
 UserRouter.put('/user/update', async (req, res) => {
-    const { name, upId } = req.body;
+    const { name, roleNames, upId } = req.body;
+    console.log("user name", name);
     try {
         const dbUser = await UserModel.query().findById(upId);
         if (!dbUser) {
@@ -97,8 +109,17 @@ UserRouter.put('/user/update', async (req, res) => {
                 }
             })
         }
+        let permissions='';
+        for (let roleName of roleNames) {
+            const dbRole = await RoleModel.query().where('role_name', '=', roleName).first();
+            if (dbRole !== undefined) {
+                permissions += dbRole.permissions;
+            }
+        }
         const updateUser = await UserModel.query().patchAndFetchById(upId, {
-            name
+            name,
+            roles: roleNames.join(","),
+            permissions
         });
         if (updateUser) {
             res.status(200).send({

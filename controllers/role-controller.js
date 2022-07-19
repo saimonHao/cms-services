@@ -1,6 +1,7 @@
 const { Router } = require('express');
 const express = require('express');
 const RoleModel = require('../models/Role');
+const UserModel = require('../models/User');
 const RoleRouter = express.Router();
 const moment = require('moment');
 /**
@@ -80,7 +81,7 @@ RoleRouter.delete('/role/:id', async (req, res) => {
 RoleRouter.put('/role/update', async (req, res) => {
     const { upId, roleName, permissions } = req.body;
     try {
-        const dbRole = await RoleModel.query().where('role_name', '=', roleName).first();
+        const dbRole = await RoleModel.query().where('id', '=', upId).first();
         if (!dbRole) {
             return res.status(400).send({
                 data: {
@@ -115,22 +116,49 @@ RoleRouter.put('/role/update', async (req, res) => {
 /**
  * update user_role
  */
-RoleRouter.put('/role/:uid', async (req, res) => {
-    const { id, roleNames } = req.params;
+RoleRouter.put('/role/updateUserRole', async (req, res) => {
+    const { uid, roleNames } = req.body
+    // console.log(req);
     try {
-        for (let i = 0; i < roleNames.length; i++) {
-            const dbRole = await RoleModel.query().where('role_name', '=', roleNames[i]);
-            if (dbRole !== undefined) {
-                const roleUsers = dbRole.users.split(",");
-                roleUsers.push(id);
-                roleUsers = roleUsers.join(",");
+        //如果roleNames length > 0 forloop dbUsers 包含 则不处理 不包含追加
+        //如果roleNames length ==0 dbUsers包含的都要去除
+        let roleUsers;
+        if (roleNames.length > 0) {
+            for (let roleName of roleNames) {
+                const dbRole = await RoleModel.query().where('role_name', '=', roleName).first();
+                roleUsers = dbRole.users === undefined || dbRole.users === "" ? [] : dbRole.users.split(",");
+                if (!roleUsers.includes(String(uid))) {
+                    roleUsers.push(String(uid));
+                }
                 const upRole = await RoleModel.query().findById(dbRole.id).patch({
-                    users: roleUsers
-                })
+                    users: roleUsers.join(",")
+                });
+            }
+        } else {
+            const dbRole = await RoleModel.query();
+            for (let role of dbRole) {
+                let roleUserArr = role.users.split(",");
+                const newRoleUserArr = roleUserArr.filter(ru => ru !== String(uid));
+                const upRole = await RoleModel.query().findById(role.id).patch({
+                    users: newRoleUserArr.join(",")
+                });
             }
         }
-    } catch (error) {
+        return res.status(200).send({
+            data: {
+                code: 200,
+                message: "Update user role successed."
+            }
+        })
 
+    } catch (error) {
+        console.log("update user role error ", error.message);
+        res.status(500).send({
+            data: {
+                code: 500,
+                message: error.message
+            }
+        })
     }
 })
 /**
