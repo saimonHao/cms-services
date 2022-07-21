@@ -37,9 +37,8 @@ app.use(function (req, res, next) {
     next();
 });
 app.get("/", (req, res) => {
-    const items = new Set([1, 2, 2, 3, 4, 5])
-    const array = Array.from(items);
-    console.log(array);
+    const p = new Point(1, 2);
+    console.log("p===>", p);
     res.status(200).send("Hello cms service!");
 });
 
@@ -63,5 +62,15 @@ app.listen(PORT, () => {
     console.log(`Server listening on port ${PORT}...`);
 });
 // [END app]
+
+class Point {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+    }
+    toString() {
+        return '(' + this.x + this.y + ')';
+    }
+}
 
 module.exports = app;
